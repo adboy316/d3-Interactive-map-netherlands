@@ -1,0 +1,132 @@
+/* CSS */
+
+.provinces {
+  fill: none;
+}
+
+/* Prvinces label */
+.subunit-label {
+  fill: #171302;
+  fill-opacity: .5;
+  font-size: 15px;
+  font-weight: 300;
+  text-anchor: middle;
+  pointer-events: none; /* Prevents text from messing up provinces hover style */
+}
+
+/* When user hovers above province make it orange */
+.proviMouseOver {
+  fill: orange;
+}
+
+.proviMouseOut {
+  .attr("fill", function(d) { return color(d.properties.total_population); })
+}
+
+/* Make the municipalities layer transparent */
+.municipalities {
+  fill: transparent; 
+}
+
+/* White boundaries between provinces */
+.province-boundaries {
+  pointer-events: none;
+  fill: none;
+  stroke: #fff;
+  stroke-width: .7px;
+}
+
+/* Population bubbles and hover effect*/
+.bubble {
+  fill: #e64d00;
+  fill-opacity: .5;
+  stroke: #fff;
+  stroke-width: .5px;
+} 
+.bubbleMuniMouseOver {
+  fill: purple;
+  fill-opacity: .5;
+  stroke: #fff;
+  stroke-width: .5px;
+} 
+
+/* Legend for population bubbles */
+.legend circle {
+  fill: none;
+  stroke: #ccc;
+}
+/*Bubble Legend*/
+.legend text {
+  fill: #777;
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+
+/*.x-axis line, .x-axis path { stroke: #fff; }
+
+/*Province population legend title*/
+.legendTitle {
+	      font-size: 1.0rem;
+	      fill: #4F4F4F;
+	      font-weight: 300;
+	}
+
+/*Province population legend axis*/
+.axis path, .axis tick, .axis line {
+          fill: none;
+          stroke: none;
+      }
+
+/*Province population legend text*/
+text {
+        font-size: .6rem;
+        fill: #AAAAAA;
+        font-weight: 400;
+  }
+
+
+/*Municipalities tooltip*/
+ div.tooltip { 
+          position: absolute;     
+          text-align: center;     
+          width: 80px;          
+          height: 14px;         
+          padding: 2px;       
+          font: 12px sans-serif;    
+          background: #fff; 
+          border: 0px;        
+          pointer-events: none;  
+}
+
+#textbox {
+  position: absolute;
+  top: 100px;
+  left: 50px;
+  width: 275px;
+  height: 100px;
+}
+
+
+#textbox text p {
+  font-family: Arial, Helvetica;
+  font-size: .8em;
+  margin: 0;
+}
+
+
+.chart rect {
+  fill: steelblue;
+}
+
+.chart text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+
+.chart {
+  position: relative;
+  bottom: 250px;
+  left: 10px;
+  
+}
