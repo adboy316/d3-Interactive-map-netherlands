@@ -54,11 +54,26 @@ d3.json("nl.json", function(error, nl) {
                       {name:"Women", value:country_values["woman"]},
                     ];
 
+  var country_data_marital = [
+                      {name:"Unmarried", value:country_values["unmarried"]},
+                      {name:"Married", value:country_values["married"]},
+                    ];
+
+  var country_data_background = [
+                      {name:"Dutch Background", value:country_values["dutchBackground"]},
+                      {name:"Migration Background", value:country_values["migrationBackground"]},
+                    ];
+
   var country_data_age = [
                       {name:"5 or Younger", value:country_values["5orYounger"]},
                       {name:"5 to 10", value:country_values["5to10"]},
                       {name:"10 to 15", value:country_values["10to15"]},
                       {name:"15 to 20", value:country_values["15to20"]},
+                      {name:"20 to 25", value:country_values["20to25"]},
+                      {name:"25 to 45", value:country_values["25to45"]},
+                      {name:"45 to 65", value:country_values["45to65"]},
+                      {name:"65 to 80", value:country_values["65to80"]},
+                      {name:"80 or Older", value:country_values["80orOlder"]},
                     ];
 
   console.log(country_data_age);             
@@ -115,11 +130,92 @@ svg.append("g")
     .on("mouseover", handleProviMouseOver)
     .on("mouseout", handleProviMouseOut);
 
+     // Tooltip for displaying municipality and province name on hover
+  var tooltip = d3.select("body").append("div") 
+          .attr("class", "tooltip")       
+          .style("opacity", 0);
+
 
     function handleProviMouseOver(d) {
 
       d3.select(this)
         .attr("class", "proviMouseOver")
+
+
+      tooltip.transition()    
+        .duration(200)    
+        .style("opacity", .9);    
+        tooltip.html(d.properties.province_name) 
+        .style("left", (d3.event.pageX) + "px")   
+        .style("top", (d3.event.pageY - 28) + "px");  
+        
+      // Create textbox     
+      var string = "<p>Total Population</strong>: " + d.properties.total_population + "</p>";
+      string += "<p><strong>% population</strong>: " + d.properties.total_population + "%</p>";
+
+      d3.select("#textbox")
+        .html("")
+        .append("text")
+        .html(string);
+
+    // Prepare province data for bar chart
+ var province_data_man_woman = [
+                      {name:"Man", value:d.properties["man"]},
+                      {name:"Women", value:d.properties["woman"]},
+                    ];
+
+  var province_data_marital = [
+                      {name:"Unmarried", value:d.properties["unmarried"]},
+                      {name:"Married", value:d.properties["married"]},
+                    ];
+
+  var province_data_background = [
+                      {name:"Dutch Background", value:d.properties["dutchBackground"]},
+                      {name:"Migration Background", value:d.properties["migrationBackground"]},
+                    ];
+
+    var province_data_age = [
+                {name:"5 or Younger", value:d.properties["5orYounger"]},
+                {name:"5 to 10", value:d.properties["5to10"]},
+                {name:"10 to 15", value:d.properties["10to15"]},
+                {name:"15 to 20", value:d.properties["15to20"]},
+                {name:"20 to 25", value:d.properties["20to25"]},
+                {name:"25 to 45", value:d.properties["25to45"]},
+                {name:"45 to 65", value:d.properties["45to65"]},
+                {name:"65 to 80", value:d.properties["65to80"]},
+                {name:"80 or Older", value:d.properties["80orOlder"]}
+                ];
+
+//This section removes the existing bar chart displaying the country data and creates a new bar chart with the municipality data
+      //It's the same bar graph as above with new data and a function that removes the old rects and texts 
+
+        y = y.domain([0, d3.max(province_data_age, function(d) { return d.value; })]);
+
+        var barWidth = svgWidth / province_data_age.length;
+
+        // Remove previous bargraph rect and text
+        chart.selectAll("rect")
+          .remove()
+
+       chart.selectAll("text")
+          .remove()
+
+        chart.selectAll("g")
+        .data(province_data_age)
+      .enter().append("g")
+        .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
+
+        bar.append("rect")
+            .attr("y", function(d) { return y(d.value); })
+            .attr("height", function(d) { return svgHeight - y(d.value); })
+            .attr("width", barWidth - 1);
+
+         bar.append("text")
+            .attr("x", barWidth / 2)
+            .attr("y", function(d) { return y(d.value) + 3; })
+            .attr("dy", ".75em")
+            .text(function(d) { return d.name; });
+
     }
 
 
@@ -127,9 +223,41 @@ svg.append("g")
 
       d3.select(this)
         .attr("class", "proviMouseOut")
+
+         // Remove province text on mouse out
+      tooltip.transition()    
+        .duration(500)    
+        .style("opacity", 0); 
+
+
+        // Restore country population on mouse out 
+      y.domain([0, d3.max(country_data_age, function(d) { return d.value; })]);
+
+      var barWidth = svgWidth / country_data_age.length;
+
+      chart.selectAll("rect")
+          .remove()
+
+       chart.selectAll("text")
+          .remove()
+
+     chart.selectAll("g")
+        .data(country_data_age)
+      .enter().append("g")
+        .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
+
+      bar.append("rect")
+          .attr("y", function(d) { return y(d.value); })
+          .attr("height", function(d) { return svgHeight - y(d.value); })
+          .attr("width", barWidth - 1);
+
+     bar.append("text")
+          .attr("x", barWidth / 2)
+          .attr("y", function(d) { return y(d.value) + 3; })
+          .attr("dy", ".75em")  
+          .text(function(d) { return d.name; });  
     }
   
-
 
 // Place a bubble elment at each municipality centroid
 svg.append("g")
@@ -161,10 +289,6 @@ svg.append("g")
         .attr("dy", "1.3em")
         .text(d3.format(".1s")); 
 
-  // Tooltip for displaying municipality name on hover
-  var tooltip = d3.select("body").append("div") 
-          .attr("class", "tooltip")       
-          .style("opacity", 0);
 
 
  // Create Event Handlers for mouse
@@ -191,18 +315,38 @@ svg.append("g")
         .html(string);
 
     // Prepare municipality data for bar chart
+ var municipality_data_man_woman = [
+                      {name:"Man", value:d.properties["man"]},
+                      {name:"Women", value:d.properties["woman"]},
+                    ];
+
+  var municipality_data_marital = [
+                      {name:"Unmarried", value:d.properties["unmarried"]},
+                      {name:"Married", value:d.properties["married"]},
+                    ];
+
+  var municipality_data_background = [
+                      {name:"Dutch Background", value:d.properties["dutchBackground"]},
+                      {name:"Migration Background", value:d.properties["migrationBackground"]},
+                    ];
+
     var municipality_data_age = [
                 {name:"5 or Younger", value:d.properties["5orYounger"]},
                 {name:"5 to 10", value:d.properties["5to10"]},
                 {name:"10 to 15", value:d.properties["10to15"]},
                 {name:"15 to 20", value:d.properties["15to20"]},
+                {name:"20 to 25", value:d.properties["20to25"]},
+                {name:"25 to 45", value:d.properties["25to45"]},
+                {name:"45 to 65", value:d.properties["45to65"]},
+                {name:"65 to 80", value:d.properties["65to80"]},
+                {name:"80 or Older", value:d.properties["80orOlder"]}
                 ];
 
       console.log(municipality_data_age)
       //This section removes the existing bar chart displaying the country data and creates a new bar chart with the municipality data
       //It's the same bar graph as above with new data and a function that removes the old rects and texts 
 
-        y.domain([0, d3.max(municipality_data_age, function(d) { return d.value; })]);
+       y =  y.domain([0, d3.max(municipality_data_age, function(d) { return d.value; })]);
 
         var barWidth = svgWidth / municipality_data_age.length;
 
@@ -269,11 +413,6 @@ svg.append("g")
           .text(function(d) { return d.name; });  
   }
       
-
-   
-
-
-
 
 	//Append a defs (for definition) element to SVG
 	var defs = svg.append("defs");
