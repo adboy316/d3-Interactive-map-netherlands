@@ -4,6 +4,7 @@ D3 Map - Credit to Mike Bostock - https://bost.ocks.org/mike/map/
 Bubble Map - Credit to Mike Bostock - https://bost.ocks.org/mike/bubble-map/
 Province population Legend - Credit to Visual Cinamon - https://www.visualcinnamon.com/2016/05/smooth-color-legend-d3-svg-gradient.html
 Municipalities Tooltip - Credit to Mike Bostock - https://bl.ocks.org/mbostock/1087001
+Bar Graph - Credit to Mike Bostock - https://bost.ocks.org/mike/bar/
 */
 
 // Height and width of the MAP SVG element 
@@ -38,17 +39,18 @@ var radius = d3.scaleSqrt()
 
 
 // d3.json is asynchronous, the rest of the page will render while it waits for the topojson file
-// Load geojson map file 
+// This loads the geojson map file, which also contains population data for provinces and municipalities 
 d3.json("nl.json", function(error, nl) {
 
   //Create bar chart in new separate SVG
 
-  // DATA for Netherlands as a whole
+  // DATA for Netherlands as a whole (I could not get this data to merge into the geojson file for some reason)
   var country_data = '{"total_population": 17181084, "man": 8527041, "woman": 8654043, "5orYounger": 868099, "5to10": 928066, "10to15": 966459, "15to20": 1048032, "20to25": 1068781, "25to45": 4222614, "45to65": 4839917, "65to80": 2460202, "80orOlder": 778914, "unmarried": 8287607, "married": 6710175, "dutchBackground": 13209225, "migrationBackground": 3971859}'
-  // Parse data for chart
+  // Parse data for chart so that it can be placed in the arrays below
   var country_values = JSON.parse(country_data);
 
-  // turn data into flat array format - https://stackoverflow.com/questions/30808384/d3-bar-chart-from-geojson
+  // Turn JSON data into flat array format, got technique from: https://stackoverflow.com/questions/30808384/d3-bar-chart-from-geojson
+  // There should be a more efficient way to do this, but I had trouble finding something. Especially for dealing with geojson data below
   var country_data_man_woman = [
                       {name:"Man", value:country_values["man"]},
                       {name:"Women", value:country_values["woman"]},
@@ -130,7 +132,7 @@ svg.append("g")
     .on("mouseover", handleProviMouseOver)
     .on("mouseout", handleProviMouseOut);
 
-     // Tooltip for displaying municipality and province name on hover
+  // Tooltip for displaying municipality and province name on hover
   var tooltip = d3.select("body").append("div") 
           .attr("class", "tooltip")       
           .style("opacity", 0);
@@ -186,7 +188,7 @@ svg.append("g")
                 {name:"80 or Older", value:d.properties["80orOlder"]}
                 ];
 
-//This section removes the existing bar chart displaying the country data and creates a new bar chart with the municipality data
+      //This section removes the existing bar chart displaying the country data and creates a new bar chart with the province data
       //It's the same bar graph as above with new data and a function that removes the old rects and texts 
 
         y = y.domain([0, d3.max(province_data_age, function(d) { return d.value; })]);
@@ -224,20 +226,20 @@ svg.append("g")
       d3.select(this)
         .attr("class", "proviMouseOut")
 
-         // Remove province text on mouse out
+      // Remove province text on mouse out
       tooltip.transition()    
         .duration(500)    
         .style("opacity", 0); 
 
 
-        // Restore country population on mouse out 
+      // Restore country population on mouse out 
       y.domain([0, d3.max(country_data_age, function(d) { return d.value; })]);
 
       var barWidth = svgWidth / country_data_age.length;
 
+      // Remove municipality bar chart
       chart.selectAll("rect")
           .remove()
-
        chart.selectAll("text")
           .remove()
 
