@@ -145,7 +145,7 @@ d3.json("nl.json", function(error, nl) {
 	        chart.append("text")
             .attr("text-anchor", "middle")  
             .attr("transform", "translate("+ (barMargin.left -100) +","+(barHeight/2)+")rotate(-90)")  
-            .text("Population in Millions");
+            .text("Population of Age Group");
 
              chart.append("text")
             .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
@@ -238,32 +238,29 @@ d3.json("nl.json", function(error, nl) {
       //This section removes the existing bar chart displaying the country data and creates a new bar chart with the province data
       //It's the same bar graph as above with new data and a function that removes the old rects and texts 
 
-        y = y.domain([0, d3.max(province_data_age, function(d) { return d.value; })]);
+	   x.domain(province_data_age.map(function(d) { return d.name; }));
+	 	y.domain([0, d3.max(province_data_age , function(d) { return d.value; })]);
 
-        var barWidth = svgWidth / province_data_age.length;
+      chart.selectAll(".bar")
+      .remove()
 
-        // Remove previous bargraph rect and text
-        chart.selectAll("rect")
-          .remove()
+       chart.selectAll(".y.baraxis")
+      .remove()      
 
-       chart.selectAll("text")
-          .remove()
+		chart.append("g")
+		  .attr("class", "y baraxis")
+		  .call(yAxis);
 
-        chart.selectAll("g")
-        .data(province_data_age)
-      .enter().append("g")
-        .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
+		chart.selectAll(".bar")
+		  .data(province_data_age)
+		.enter().append("rect")
+		  .attr("class", "bar")
+		  .attr("x", function(d) { return x(d.name); })
+		  .attr("y", function(d) { return y(d.value); })
+		  .attr("height", function(d) { return barHeight - y(d.value); })
+		  .attr("width", x.bandwidth());
 
-        bar.append("rect")
-            .attr("y", function(d) { return y(d.value); })
-            .attr("height", function(d) { return svgHeight - y(d.value); })
-            .attr("width", barWidth - 1);
-
-         bar.append("text")
-            .attr("x", barWidth / 2)
-            .attr("y", function(d) { return y(d.value) + 3; })
-            .attr("dy", ".75em")
-            .text(function(d) { return d.name; });
+	
 
     }
 
@@ -278,33 +275,30 @@ d3.json("nl.json", function(error, nl) {
         .duration(500)    
         .style("opacity", 0); 
 
+        //removes the existing bar chart displaying the province data and creates a new bar chart with the province data
 
-      // Restore country population on mouse out 
-      y.domain([0, d3.max(country_data_age, function(d) { return d.value; })]);
+       x.domain(country_data_age.map(function(d) { return d.name; }));
+	 	y.domain([0, d3.max(country_data_age , function(d) { return d.value; })]);
 
-      var barWidth = svgWidth / country_data_age.length;
+	      chart.selectAll(".bar")
+	      .remove()
 
-      // Remove municipality bar chart
-      chart.selectAll("rect")
-          .remove()
-       chart.selectAll("text")
-          .remove()
+	       chart.selectAll(".y.baraxis")
+	      	.remove()      
 
-     chart.selectAll("g")
-        .data(country_data_age)
-      .enter().append("g")
-        .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
+			chart.append("g")
+			  .attr("class", "y baraxis")
+			  .call(yAxis);
 
-      bar.append("rect")
-          .attr("y", function(d) { return y(d.value); })
-          .attr("height", function(d) { return svgHeight - y(d.value); })
-          .attr("width", barWidth - 1);
+			chart.selectAll(".bar")
+			  .data(country_data_age)
+			.enter().append("rect")
+			  .attr("class", "bar")
+			  .attr("x", function(d) { return x(d.name); })
+			  .attr("y", function(d) { return y(d.value); })
+			  .attr("height", function(d) { return barHeight - y(d.value); })
+			  .attr("width", x.bandwidth());
 
-     bar.append("text")
-          .attr("x", barWidth / 2)
-          .attr("y", function(d) { return y(d.value) + 3; })
-          .attr("dy", ".75em")  
-          .text(function(d) { return d.name; });  
     }
   
 
@@ -392,35 +386,32 @@ svg.append("g")
                 ];
 
       console.log(municipality_data_age)
+
       //This section removes the existing bar chart displaying the country data and creates a new bar chart with the municipality data
       //It's the same bar graph as above with new data and a function that removes the old rects and texts 
 
-       y =  y.domain([0, d3.max(municipality_data_age, function(d) { return d.value; })]);
+       x.domain(municipality_data_age.map(function(d) { return d.name; }));
+	 	y.domain([0, d3.max(municipality_data_age , function(d) { return d.value; })]);
 
-        var barWidth = svgWidth / municipality_data_age.length;
+	      chart.selectAll(".bar")
+	      .remove()
 
-        // Remove previous bargraph rect and text
-        chart.selectAll("rect")
-          .remove()
+	       chart.selectAll(".y.baraxis")
+	      	.remove()      
 
-       chart.selectAll("text")
-          .remove()
+			chart.append("g")
+			  .attr("class", "y baraxis")
+			  .call(yAxis);
 
-        chart.selectAll("g")
-        .data(municipality_data_age)
-      .enter().append("g")
-        .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
+			chart.selectAll(".bar")
+			  .data(municipality_data_age)
+			.enter().append("rect")
+			  .attr("class", "bar")
+			  .attr("x", function(d) { return x(d.name); })
+			  .attr("y", function(d) { return y(d.value); })
+			  .attr("height", function(d) { return barHeight - y(d.value); })
+			  .attr("width", x.bandwidth());
 
-        bar.append("rect")
-            .attr("y", function(d) { return y(d.value); })
-            .attr("height", function(d) { return svgHeight - y(d.value); })
-            .attr("width", barWidth - 1);
-
-         bar.append("text")
-            .attr("x", barWidth / 2)
-            .attr("y", function(d) { return y(d.value) + 3; })
-            .attr("dy", ".75em")
-            .text(function(d) { return d.name; });
       }
   
 
@@ -435,31 +426,27 @@ svg.append("g")
         .style("opacity", 0); 
 
       // Restore country population on mouse out 
-      y.domain([0, d3.max(country_data_age, function(d) { return d.value; })]);
+      x.domain(country_data_age.map(function(d) { return d.name; }));
+	 	y.domain([0, d3.max(country_data_age , function(d) { return d.value; })]);
 
-      var barWidth = svgWidth / country_data_age.length;
+	      chart.selectAll(".bar")
+	      .remove()
 
-      chart.selectAll("rect")
-          .remove()
+	       chart.selectAll(".y.baraxis")
+	      	.remove()      
 
-       chart.selectAll("text")
-          .remove()
+			chart.append("g")
+			  .attr("class", "y baraxis")
+			  .call(yAxis);
 
-     chart.selectAll("g")
-        .data(country_data_age)
-      .enter().append("g")
-        .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
-
-      bar.append("rect")
-          .attr("y", function(d) { return y(d.value); })
-          .attr("height", function(d) { return svgHeight - y(d.value); })
-          .attr("width", barWidth - 1);
-
-     bar.append("text")
-          .attr("x", barWidth / 2)
-          .attr("y", function(d) { return y(d.value) + 3; })
-          .attr("dy", ".75em")  
-          .text(function(d) { return d.name; });  
+			chart.selectAll(".bar")
+			  .data(country_data_age)
+			.enter().append("rect")
+			  .attr("class", "bar")
+			  .attr("x", function(d) { return x(d.name); })
+			  .attr("y", function(d) { return y(d.value); })
+			  .attr("height", function(d) { return barHeight - y(d.value); })
+			  .attr("width", x.bandwidth());
   }
       
 
