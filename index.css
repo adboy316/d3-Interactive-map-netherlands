@@ -113,20 +113,27 @@ text {
   margin: 0;
 }
 
-
-.chart rect {
+/*bargraph style*/
+.bar {
   fill: steelblue;
 }
 
-.chart text {
-  fill: white;
+.baraxis text {
   font: 10px sans-serif;
-  text-anchor: middle;
 }
 
-.chart {
-  position: relative;
-  bottom: 250px;
-  left: 10px;
-  
+.baraxis path,
+.baraxis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
 }
+
+.x.baraxis path {
+  display: none;
+}
+
+.baraxis text {
+				font-family: sans-serif;
+				font-size: 10px;
+			}
