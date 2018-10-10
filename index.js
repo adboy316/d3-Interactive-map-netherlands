@@ -15,7 +15,7 @@ var width = 580,
 var projection = d3.geoMercator()
                    .center([ 5.4, 52.2 ])
                    .translate([ width/2, height/2 ])
-                   //change size of map
+                   //change size of map within SVG element
                    .scale([ width*12.5]);
 
 // Path generator takes above projection and formats it for SVG   
@@ -42,30 +42,34 @@ var radius = d3.scaleSqrt()
 // This loads the geojson map file, which also contains population data for provinces and municipalities 
 d3.json("nl.json", function(error, nl) {
 
-  //Create bar chart in new separate SVG
+///////////////////////////////////////////////////////////////////////////
+//////////////////// Create Graphs for Country Data ///////////////////
+///////////////////////////////////////////////////////////////////////////	
 
-  // DATA for Netherlands as a whole (I could not get this data to merge into the geojson file for some reason)
+  // Population Data for Netherlands as a whole (I could not get this data to merge into the geojson file for some reason)
   var country_data = '{"total_population": 17181084, "man": 8527041, "woman": 8654043, "5orYounger": 868099, "5to10": 928066, "10to15": 966459, "15to20": 1048032, "20to25": 1068781, "25to45": 4222614, "45to65": 4839917, "65to80": 2460202, "80orOlder": 778914, "unmarried": 8287607, "married": 6710175, "dutchBackground": 13209225, "migrationBackground": 3971859}'
-  // Parse data for chart so that it can be placed in the arrays below
+  // Parse above data so that it can be placed in the arrays below
   var country_values = JSON.parse(country_data);
 
   // Turn JSON data into flat array format, got technique from: https://stackoverflow.com/questions/30808384/d3-bar-chart-from-geojson
-  // There should be a more efficient way to do this, but I had trouble finding something. Especially for dealing with geojson data below
+  // There should be a more efficient way to do this, but I had trouble finding a better solution. 
+
+  // Number of man and women in the whole country
   var country_data_man_woman = [
                       {name:"Man", value:country_values["man"]},
                       {name:"Women", value:country_values["woman"]},
                     ];
-
+// Number of married vs unmarried people in the whole country
   var country_data_marital = [
                       {name:"Unmarried", value:country_values["unmarried"]},
                       {name:"Married", value:country_values["married"]},
                     ];
-
+// Number of married vs unmarried people in the whole country
   var country_data_background = [
                       {name:"Dutch Background", value:country_values["dutchBackground"]},
                       {name:"Migration Background", value:country_values["migrationBackground"]},
                     ];
-
+// Population age distribution in the whole country
   var country_data_age = [
                       {name:"5 or Younger", value:country_values["5orYounger"]},
                       {name:"5 to 10", value:country_values["5to10"]},
@@ -80,57 +84,89 @@ d3.json("nl.json", function(error, nl) {
 
   console.log(country_data_age);             
 
-  // SVG bar width and height
-  var svgWidth = 200,
-      svgHeight = 150;
+  //Age distribution bargraph width, height, margin
+  var 	barMargin = {top: 20, right: 30, bottom: 50, left: 60}, //margins in D3 are specified as an object with top, right, bottom and left properties
+  		barWidth = 400 - barMargin.left - barMargin.right,
+      	barHeight = 350 - barMargin.top - barMargin.bottom;
 
+      // Create a band scale that returns the width of each bar - https://github.com/d3/d3-scale/blob/master/README.md#band_bandwidth
+      var x = d3.scaleBand()
+      		.range([0, barWidth])
+      		.padding(.1); // adds padding between bars
+   
+      // Create a linear scale that returns the height of each bar - https://github.com/d3/d3-scale#linear-scales
       var y = d3.scaleLinear()
-          .range([svgHeight, 0]);
+          .range([barHeight, 0]);
 
+      // Add x and y axis
+	  var xAxis = d3.axisBottom(x)
+	
+		var yAxis = d3.axisLeft(y)
+			.ticks(10, "s");
+		
+      // set the width and height of the SVG element to the outer dimensions 
+      // and add a g element to offset the origin of the chart area by the top-left margin
       var chart = d3.select(".chart")
-          .attr("width", svgWidth)
-          .attr("height", svgHeight);
+          .attr("width", barWidth + barMargin.left + barMargin.right)
+          .attr("height", barHeight + barMargin.top + barMargin.bottom)
+          .append("g")
+    		.attr("transform", "translate(" + barMargin.left + "," + barMargin.top + ")");
 
-      var y = y.domain([0, d3.max(country_data_age, function(d) { return d.value; })]);
+	 x.domain(country_data_age.map(function(d) { return d.name; }));
+	 y.domain([0, d3.max(country_data_age , function(d) { return d.value; })]);
 
-      var barWidth = svgWidth / country_data_age.length;
+	// Select all g elements, then use the enter() selection to create an element for each data point
+	// this also translates each g element - https://github.com/d3/d3-selection#selection_enter
+		chart.append("g")
+		  .attr("class", "x baraxis")
+		  .attr("transform", "translate(0," + barHeight + ")")
+		  .call(xAxis);
 
-      var bar = chart.selectAll("g")
-          .data(country_data_age)
-        .enter().append("g")
-          .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
+		chart.append("g")
+		  .attr("class", "y baraxis")
+		  .call(yAxis);
 
-      var barRect = bar.append("rect")
-          .attr("y", function(d) { return y(d.value); })
-          .attr("height", function(d) { return svgHeight - y(d.value); })
-          .attr("width", barWidth - 1);
+		// Rotate text on x axis -  http://bl.ocks.org/phoebebright/3061203
+        chart.selectAll(".x.baraxis text")  // select all the text elements for the xaxis
+          .attr("transform", function(d) {
+             return "translate(" + this.getBBox().height*-2 + "," + this.getBBox().height + ")rotate(-45)";
+         });
 
-      var barText = bar.append("text")
-          .attr("x", barWidth / 2)
-          .attr("y", function(d) { return y(d.value) + 3; })
-          .attr("dy", ".75em")
-          .text(function(d) { return d.name; });
+		chart.selectAll(".bar")
+		  .data(country_data_age)
+		.enter().append("rect")
+		  .attr("class", "bar")
+		  .attr("x", function(d) { return x(d.name); })
+		  .attr("y", function(d) { return y(d.value); })
+		  .attr("height", function(d) { return barHeight - y(d.value); })
+		  .attr("width", x.bandwidth());
 
-// Create a child element that will contain each municipality
-svg.append("g")
-  .attr("class", "municipalities")
-  .selectAll(".path")
-  .data(topojson.feature(nl, nl.objects.municipalities).features)
-  .enter().append("path")
-    .attr("class", function(d) { return "municipalities " + d.properties.id; })
-      .attr("d", path);  
-       
-// Create a child element that will contain each province
-  svg.append("g")
-    .attr("class", "provinces")
-    .selectAll(".path")
-    .data(topojson.feature(nl, nl.objects.provinces).features)
-    // Create a child SVG for each province 
-    .enter().append("path")
-   	.attr("fill", function(d) { return color(d.properties.total_population); })
-    .attr("d", path)
-    .on("mouseover", handleProviMouseOver)
-    .on("mouseout", handleProviMouseOut);
+//////////////////////////////////////////////////////////////////////////
+/////////////Create provicnes and municipalities of map //////////////////
+////////////////////////////////////////////////////////////////////////// 
+
+	// Create a child element that will contain each municipality
+	svg.append("g")
+	  .attr("class", "municipalities")
+	  .selectAll(".path")
+	  .data(topojson.feature(nl, nl.objects.municipalities).features)
+	  .enter().append("path")
+	    .attr("class", function(d) { return "municipalities " + d.properties.id; })
+	      .attr("d", path);  
+	       
+	// Create a child element that will contain each province
+	  svg.append("g")
+	    .attr("class", "provinces")
+	    .selectAll(".path")
+	    .data(topojson.feature(nl, nl.objects.provinces).features)
+	    // Create a child SVG for each province 
+	    .enter().append("path")
+	   	.attr("fill", function(d) { return color(d.properties.total_population); })
+	    .attr("d", path)
+	    .on("mouseover", handleProviMouseOver)
+	    .on("mouseout", handleProviMouseOut);
+
+
 
   // Tooltip for displaying municipality and province name on hover
   var tooltip = d3.select("body").append("div") 
