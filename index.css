@@ -133,7 +133,18 @@ text {
   display: none;
 }
 
-.baraxis text {
+.x.baraxis text {
 				font-family: sans-serif;
 				font-size: 10px;
 			}
+
+.y.baraxis text {
+  font: 10px sans-serif;
+}
+
+.y.baraxis path,
+.y.baraxis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
