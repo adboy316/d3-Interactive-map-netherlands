@@ -85,7 +85,7 @@ d3.json("nl.json", function(error, nl) {
   console.log(country_data_age);             
 
   //Age distribution bargraph width, height, margin
-  var 	barMargin = {top: 20, right: 30, bottom: 50, left: 60}, //margins in D3 are specified as an object with top, right, bottom and left properties
+  var 	barMargin = {top: 20, right: 30, bottom: 65, left: 60}, //margins in D3 are specified as an object with top, right, bottom and left properties
   		barWidth = 400 - barMargin.left - barMargin.right,
       	barHeight = 350 - barMargin.top - barMargin.bottom;
 
@@ -126,12 +126,6 @@ d3.json("nl.json", function(error, nl) {
 		  .attr("class", "y baraxis")
 		  .call(yAxis);
 
-		// Rotate text on x axis -  http://bl.ocks.org/phoebebright/3061203
-        chart.selectAll(".x.baraxis text")  // select all the text elements for the xaxis
-          .attr("transform", function(d) {
-             return "translate(" + this.getBBox().height*-2 + "," + this.getBBox().height + ")rotate(-45)";
-         });
-
 		chart.selectAll(".bar")
 		  .data(country_data_age)
 		.enter().append("rect")
@@ -140,6 +134,23 @@ d3.json("nl.json", function(error, nl) {
 		  .attr("y", function(d) { return y(d.value); })
 		  .attr("height", function(d) { return barHeight - y(d.value); })
 		  .attr("width", x.bandwidth());
+
+	// Rotate text on x axis -  http://bl.ocks.org/phoebebright/3061203
+        chart.selectAll(".x.baraxis text")  // select all the text elements for the xaxis
+          .attr("transform", function(d) {
+             return "translate(" + this.getBBox().height*-2 + "," + this.getBBox().width/2 + ")rotate(-45)";
+         });
+
+	      // now add titles to the axes
+	        chart.append("text")
+            .attr("text-anchor", "middle")  
+            .attr("transform", "translate("+ (barMargin.left -100) +","+(barHeight/2)+")rotate(-90)")  
+            .text("Population in Millions");
+
+             chart.append("text")
+            .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+            .attr("transform", "translate("+ (barWidth/2) +","+(barHeight-(barMargin.bottom - 120))+")")  // centre below axis
+            .text("Age Group");
 
 //////////////////////////////////////////////////////////////////////////
 /////////////Create provicnes and municipalities of map //////////////////
