@@ -153,6 +153,53 @@ d3.json("nl.json", function(error, nl) {
             .text("Age Group");
 
 //////////////////////////////////////////////////////////////////////////
+/////////////Create country donut chart for gender//////////////////
+////////////////////////////////////////////////////////////////////////// 
+
+var pieWidth = 460,
+pieHeight = 300,
+pieRadius = Math.min(pieWidth, pieHeight) / 2;
+
+var pieColor  = d3.scaleOrdinal(d3.schemeCategory20c);
+  
+var pie = d3.pie()
+.value(function(d) { return d.value; });
+
+var arc = d3.arc()
+    .innerRadius(pieRadius - 100)
+    .outerRadius(pieRadius - 80);
+
+var pieSvg = d3.select(".piechart")
+    .attr("width", pieWidth)
+    .attr("height", pieHeight)
+  .append("g")
+    .attr("transform", "translate(" + pieWidth / 2 + "," + pieHeight / 2 + ")");
+
+var arcs = pieSvg.selectAll(".pieArc")
+      .data(pie(country_data_man_woman))
+    .enter().append("path")
+      .attr("fill", function(d, i) { return pieColor(i); })
+      .attr("d", "M 10,90 Q 100,15 200,70 Q 340,140 400,30")
+      .attr("class", "pieArc")
+      .attr("id", function(d,i) { return "arcid_"+i; })
+      .attr("d", arc);
+
+
+var arctext =  pieSvg.selectAll(".arcText")
+    .data(country_data_man_woman)
+    .enter().append("text")
+    .attr("class", "arcText")
+    .append("textPath")
+    .attr("xlink:href",function(d,i){return "#arcid_"+i;})
+    .text(function(d){return d.value;});
+
+
+	
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
 /////////////Create provicnes and municipalities of map //////////////////
 ////////////////////////////////////////////////////////////////////////// 
 
@@ -260,7 +307,22 @@ d3.json("nl.json", function(error, nl) {
 		  .attr("height", function(d) { return barHeight - y(d.value); })
 		  .attr("width", x.bandwidth());
 
-	
+	 /////////////PIE CHART///////////////
+   
+ 	arcs = arcs.data(pie(province_data_man_woman));
+    arcs.attr("d", arc)
+    arctext.data(province_data_man_woman)
+    arctext.text(function(d){return d.value;});
+  
+
+
+
+
+
+
+
+
+	 ///////// END PIE CHART////////
 
     }
 
@@ -298,6 +360,16 @@ d3.json("nl.json", function(error, nl) {
 			  .attr("y", function(d) { return y(d.value); })
 			  .attr("height", function(d) { return barHeight - y(d.value); })
 			  .attr("width", x.bandwidth());
+
+	/////////////PIE CHART///////////////
+	 
+ 	arcs = arcs.data(pie(country_data_man_woman));
+    arcs.attr("d", arc)
+    arctext.data(country_data_man_woman)
+    arctext.text(function(d){return d.value;});
+
+
+ /////////////PIE CHART///////////////
 
     }
   
