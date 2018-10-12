@@ -148,3 +148,35 @@ text {
   stroke: #000;
   shape-rendering: crispEdges;
 }
+
+
+/*pie chart*/
+
+.arc text {
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+
+.arc path {
+  stroke: white;
+}
+
+
+.piechart {
+  position: absolute;
+  right: 450px;
+  top: 40px;
+}
+
+
+		
+		.pieArc {
+			fill: white;
+			stroke: #AAAAAA;
+		}
+
+		.arcText {
+			fill: #6B6B6B;
+			font-size: 13px;
+			font-family: 'Courgette', sans-serif;
+		}
