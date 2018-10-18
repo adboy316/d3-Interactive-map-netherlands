@@ -3,6 +3,7 @@
 D3 Map - Credit to Mike Bostock - https://bost.ocks.org/mike/map/
 Bubble Map - Credit to Mike Bostock - https://bost.ocks.org/mike/bubble-map/
 Province population Legend - Credit to Visual Cinamon - https://www.visualcinnamon.com/2016/05/smooth-color-legend-d3-svg-gradient.html
+Donut chart - https://www.visualcinnamon.com/2015/09/placing-text-on-arcs.html
 Municipalities Tooltip - Credit to Mike Bostock - https://bl.ocks.org/mbostock/1087001
 Bar Graph - Credit to Mike Bostock - https://bost.ocks.org/mike/bar/
 */
@@ -57,15 +58,13 @@ var svgMargin = {left: 20, top: 40, right: 20, bottom: 0}
    width = Math.min(screenWidth, 680) - (svgMargin.left) - svgMargin.right,
     height = Math.min(screenWidth, 750) - (svgMargin.left) - svgMargin.right
 
-//Age distribution bargraph 
+//Age distribution bargraph margins and size
 var barMargin = {top: 20, right: 30, bottom: 65, left: 40}, //margins in D3 are specified as an object with top, right, bottom and left properties
     barWidth = Math.min(screenWidth, 400) - barMargin.left - barMargin.right,
     barHeight = Math.min(screenWidth, 350) - barMargin.top - barMargin.bottom;
     
 
-// Donut chart 
-
-    
+// Donut chart margins and size
 var pieMargin = {left: 10, top: 120, right: 50, bottom: 10},
     pieWidth = Math.min(screenWidth, 150) - (pieMargin.left) - pieMargin.right,
     pieHeight = Math.min(screenWidth, 150) - (pieMargin.left) - pieMargin.right,
@@ -89,15 +88,14 @@ var projection = d3.geoMercator()
 var path = d3.geoPath()
             .projection(projection);
 
-
-
-// Create SVG element where map will be inserted 
+// Create main SVG element where all content will be inserted
 var svgMain = d3.select("body").append("svg")
             .attr("width", (width + svgMargin.left + barMargin.left) + (svgMargin.right + barMargin.right +400))
             .attr("height", height + svgMargin.top + svgMargin.bottom)
             .attr("class", "mainSvg")
 
-var svg = svgMain.append("g")
+// Create g element where map will be inserted 
+var svgMap = svgMain.append("g")
             .attr("width", (width + svgMargin.left + barMargin.left) + (svgMargin.right + barMargin.right +400))
             .attr("height", height + svgMargin.top + svgMargin.bottom)
             .attr("class", "map")
@@ -122,7 +120,7 @@ d3.json("nl.json", function(error, nl) {
 // Create provinces and municipalities in map:
 
 // Create a child element that will contain each municipality
-  svg.append("g")
+  svgMap.append("g")
     .attr("class", "municipalities")
     .selectAll(".path")
     .data(topojson.feature(nl, nl.objects.municipalities).features)
@@ -131,7 +129,7 @@ d3.json("nl.json", function(error, nl) {
         .attr("d", path);  
          
 // Create a child element that will contain each province
-  svg.append("g")
+  svgMap.append("g")
     .attr("class", "provinces")
     .selectAll(".path")
     .data(topojson.feature(nl, nl.objects.provinces).features)
@@ -144,7 +142,7 @@ d3.json("nl.json", function(error, nl) {
 
   // =================
   // Create white line boundaries between provinces
-  svg.append("path")
+  svgMap.append("path")
     .attr("class", "province-boundaries")
     .datum(topojson.feature(nl, nl.objects.provinces, function(a, b) { return a !== b; }))
     .attr("d", path);
@@ -156,7 +154,7 @@ d3.json("nl.json", function(error, nl) {
 
   // =================
   // Place a bubble elment at each municipality centroid
-  svg.append("g")
+  svgMap.append("g")
     .attr("class", "bubble")
     .selectAll("circle")
       .data(topojson.feature(nl, nl.objects.municipalities).features
@@ -169,7 +167,7 @@ d3.json("nl.json", function(error, nl) {
 
 
   // Place a legend for the popupultion bubbles
-  var legend = svg.append("g")
+  var legend = svgMap.append("g")
     .attr("class", "legend")
     .attr("transform", "translate(" + (width - 520) + "," + (height - 510) + ")")
     .selectAll("g")
@@ -254,7 +252,7 @@ var barChart =	chart.selectAll(".bar")
       .text("Age Group");
 
   // =================
-  // Donut chart for gender population: 
+  // Donut chart for gender population: - https://www.visualcinnamon.com/2015/09/placing-text-on-arcs.html
 
   var pieSvg = svgMain.append("g")
       .attr("width", (pieWidth + pieMargin.left + pieMargin.right))
@@ -529,7 +527,7 @@ var barChart =	chart.selectAll(".bar")
   // Color scale legend  based on population of province
 
   //Append a defs (for definition) element to SVG
-    var defs = svg.append("defs");
+    var defs = svgMap.append("defs");
     //Extra scale since the color scale is interpolated
     var countScale = d3.scaleLinear()
       .domain([0, 4e6])
@@ -543,7 +541,7 @@ var barChart =	chart.selectAll(".bar")
       countPoint.push(i * countRange[2]/(numStops-1) + countRange[0]);
     }
     //Create the gradient
-    svg.append("defs")
+    svgMap.append("defs")
       .append("linearGradient")
       .attr("id", "legend-traffic")
       //Sets the direction of the legend
@@ -562,7 +560,7 @@ var barChart =	chart.selectAll(".bar")
     // Draw legend 
     var legendWidth = Math.min(width*0.8, 400);
     //Color legend container
-    var legendsvg = svg.append("g")
+    var legendsvg = svgMap.append("g")
       .attr("class", "legendWrapper")
       // Sets the actual position of the legend  container
       .attr("transform", "translate(" + (width/2) + "," + 720 + ")");
@@ -605,6 +603,18 @@ var barChart =	chart.selectAll(".bar")
             .attr("class", "tooltip")       
             .style("opacity", 0);
 
+
+  // =================
+  // Name of place and total population
+
+  
+  var string = "<p>" + "Netherlands" + "</p>";
+  string += "<p>Total Population</strong>: " + "17,181,084" + "</p>";
+
+  d3.select("#textbox")
+    .html("")
+    .append("text")
+    .html(string);
 // =================
 // Handlers:
 // =================
@@ -623,9 +633,10 @@ function handleProviMouseOver(d) {
     .style("left", (d3.event.pageX) + "px")   
     .style("top", (d3.event.pageY - 28) + "px");  
     
-  // Create a textbox with information about the province    
-  var string = "<p>Total Population</strong>: " + d.properties.total_population + "</p>";
-  string += "<p><strong>% population</strong>: " + d.properties.total_population + "%</p>";
+  // Create a textbox with information about the province   
+
+  var string = "<p>" + d.properties.total_population + "</p>"; 
+  string += "<p>Total Population</strong>: " + d.properties.total_population + "</p>";
 
   d3.select("#textbox")
     .html("")
