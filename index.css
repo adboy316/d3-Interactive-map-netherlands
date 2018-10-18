@@ -1,9 +1,36 @@
 /* CSS */
 
-.provinces {
-  fill: none;
-}
+body {
+		  	font-size: 1.6rem;
+		  	font-family: 'Open Sans', sans-serif;
+		  	font-weight: 300;
+		  	fill: #7A7A7A;
+		  	text-align: center;
+		}
 
+
+
+/* Headings */  
+h1 {
+	      font-size: 2.6rem;
+	      fill: #4F4F4F;
+	      font-weight: 300;
+	      text-anchor: middle;
+	    }
+
+h2 {
+	      font-size: 1.6rem;
+	      fill: #AAAAAA;
+	      font-weight: 300;
+	      text-anchor: middle;
+	    }
+
+ h3 {
+    text-anchor: middle;
+    font-size: .6rem;
+    fill: #4F4F4F;
+    font-weight: 300;
+}
 /* Prvinces label */
 .subunit-label {
   fill: #171302;
@@ -66,7 +93,7 @@
 
 /*Province population legend title*/
 .legendTitle {
-	      font-size: 1.0rem;
+	      font-size: .8rem;
 	      fill: #4F4F4F;
 	      font-weight: 300;
 	}
@@ -113,12 +140,22 @@ text {
   margin: 0;
 }
 
+
+
+
+
 /*bargraph style*/
 .bar {
   fill: steelblue;
 }
 
-.baraxis text {
+#chart {
+  translate: (100 300);
+  
+}
+
+
+.baraxis text 
   font: 10px sans-serif;
 }
 
@@ -150,7 +187,15 @@ text {
 }
 
 
-/*pie chart*/
+/*donut chart*/
+
+
+.arc text {
+  font-family: 'Pacifico', sans-serif;
+			fill: #333333;
+			font-size: 15px;
+			text-align: center;
+}
 
 .arc text {
   font: 10px sans-serif;
@@ -162,21 +207,11 @@ text {
 }
 
 
-.piechart {
-  position: absolute;
-  right: 450px;
-  top: 40px;
-}
-
-
+.donutText {
+			font-family: 'Pacifico', sans-serif;
+			fill: #333333;
+			font-size: 12px;
+			text-align: center;
+		}
 		
-		.pieArc {
-			fill: white;
-			stroke: #AAAAAA;
-		}
-
-		.arcText {
-			fill: #6B6B6B;
-			font-size: 13px;
-			font-family: 'Courgette', sans-serif;
-		}
+	
