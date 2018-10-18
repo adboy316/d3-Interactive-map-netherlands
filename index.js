@@ -31,7 +31,7 @@ Bar Graph - Credit to Mike Bostock - https://bost.ocks.org/mike/bar/
 // Number of married vs unmarried people in the whole country
   var country_data_background = [
                       {name:"Dutch Background", value:country_values["dutchBackground"]},
-                      {name:"Migration Background", value:country_values["migrationBackground"]},
+                      {name:"Migration Background ", value:country_values["migrationBackground"]},
                     ];
 // Population age distribution in the whole country
   var country_data_age = [
@@ -51,19 +51,24 @@ Bar Graph - Credit to Mike Bostock - https://bost.ocks.org/mike/bar/
 // =================
 
 // Height and width of the MAP SVG element 
-var width = 580,
-	 height = 650;
+var screenWidth = window.innerWidth;
+var svgMargin = {left: 20, top: 40, right: 20, bottom: 0}
+    
+   width = Math.min(screenWidth, 680) - (svgMargin.left) - svgMargin.right,
+    height = Math.min(screenWidth, 750) - (svgMargin.left) - svgMargin.right
 
 //Age distribution bargraph 
-var barMargin = {top: 20, right: 30, bottom: 65, left: 60}, //margins in D3 are specified as an object with top, right, bottom and left properties
-    barWidth = 400 - barMargin.left - barMargin.right,
-    barHeight = 350 - barMargin.top - barMargin.bottom;
+var barMargin = {top: 20, right: 30, bottom: 65, left: 40}, //margins in D3 are specified as an object with top, right, bottom and left properties
+    barWidth = Math.min(screenWidth, 400) - barMargin.left - barMargin.right,
+    barHeight = Math.min(screenWidth, 350) - barMargin.top - barMargin.bottom;
+    
 
 // Donut chart 
-var screenWidth = window.innerWidth;
-var pieMargin = {left: 20, top: 20, right: 20, bottom: 20},
-    pieWidth = Math.min(screenWidth, 300) - pieMargin.left - pieMargin.right,
-    pieHeight = Math.min(screenWidth, 300) - pieMargin.left - pieMargin.right,
+
+    
+var pieMargin = {left: 10, top: 120, right: 50, bottom: 10},
+    pieWidth = Math.min(screenWidth, 150) - (pieMargin.left) - pieMargin.right,
+    pieHeight = Math.min(screenWidth, 150) - (pieMargin.left) - pieMargin.right,
     pieRadius = Math.min(pieWidth, pieHeight) / 2;
 
 // =================
@@ -84,10 +89,20 @@ var projection = d3.geoMercator()
 var path = d3.geoPath()
             .projection(projection);
 
+
+
 // Create SVG element where map will be inserted 
-var svg = d3.select("body").append("svg")
-            .attr("width", width)
-            .attr("height", height);
+var svgMain = d3.select("body").append("svg")
+            .attr("width", (width + svgMargin.left + barMargin.left) + (svgMargin.right + barMargin.right +400))
+            .attr("height", height + svgMargin.top + svgMargin.bottom)
+            .attr("class", "mainSvg")
+
+var svg = svgMain.append("g")
+            .attr("width", (width + svgMargin.left + barMargin.left) + (svgMargin.right + barMargin.right +400))
+            .attr("height", height + svgMargin.top + svgMargin.bottom)
+            .attr("class", "map")
+            .attr("transform", "translate(" + (width-200) + "," + (-40) + ")");
+        
 
 // Color scale for population of province
 var color = d3.scaleSequential()
@@ -128,7 +143,7 @@ d3.json("nl.json", function(error, nl) {
     .on("mouseout", handleProviMouseOut);
 
   // =================
-  // Create provinces and municipalities in map:
+  // Create white line boundaries between provinces
   svg.append("path")
     .attr("class", "province-boundaries")
     .datum(topojson.feature(nl, nl.objects.provinces, function(a, b) { return a !== b; }))
@@ -156,7 +171,7 @@ d3.json("nl.json", function(error, nl) {
   // Place a legend for the popupultion bubbles
   var legend = svg.append("g")
     .attr("class", "legend")
-    .attr("transform", "translate(" + (width - 50) + "," + (height - 20) + ")")
+    .attr("transform", "translate(" + (width - 520) + "," + (height - 510) + ")")
     .selectAll("g")
     .data([.1e6, .5e6, 1e6])
     .enter().append("g");
@@ -190,11 +205,13 @@ d3.json("nl.json", function(error, nl) {
 		
   // set the width and height of the SVG element to the outer dimensions 
   // and add a g element to offset the origin of the chart area by the top-left margin
-  var chart = d3.select(".chart")
+  var chart = svgMain.append("g")
       .attr("width", barWidth + barMargin.left + barMargin.right)
       .attr("height", barHeight + barMargin.top + barMargin.bottom)
+      .attr("id", "chart")
+       .attr("transform", "translate(" + (50) + "," + 200 + ")")
       .append("g")
-  	 .attr("transform", "translate(" + barMargin.left + "," + barMargin.top + ")");
+  	   .attr("transform", "translate(" + barMargin.left + "," + barMargin.top + ")");
 
   x.domain(country_data_age.map(function(d) { return d.name; }));
   y.domain([0, d3.max(country_data_age , function(d) { return d.value; })]);
@@ -239,18 +256,20 @@ var barChart =	chart.selectAll(".bar")
   // =================
   // Donut chart for gender population: 
 
-  var pieSvg = d3.select(".piechart")
+  var pieSvg = svgMain.append("g")
       .attr("width", (pieWidth + pieMargin.left + pieMargin.right))
-  	.attr("height", (pieHeight + pieMargin.top + pieMargin.bottom))
+  	 .attr("height", (pieHeight + pieMargin.top + pieMargin.bottom))
+     .attr("class", "piechart")
+     .attr("transform", "translate(" + (20) + "," + 40 + ")")
      .append("g").attr("class", "wrapper")
-  	.attr("transform", "translate(" + (pieWidth / 2 + pieMargin.left) + "," + (pieHeight / 2 + pieMargin.top) + ")");
+  	.attr("transform", "translate(" + (pieWidth / 2 + pieMargin.left ) + "," + (pieHeight / 2 + pieMargin.bottom) + ")");
 
   // Create a color scale
   var pieColor  = d3.scaleOrdinal(d3.schemeCategory20c);
 
   var arc = d3.arc()
       .innerRadius(pieWidth*0.75/2) 
-  	.outerRadius(pieWidth*0.75/2 + 30);
+  	   .outerRadius(pieWidth*0.75/2 + 30);
     
    //Turn the pie chart 90 degrees counter clockwise, so it starts at the left	
   var pie = d3.pie()
@@ -327,10 +346,187 @@ var barChart =	chart.selectAll(".bar")
       .attr("startOffset","50%")
       .style("text-anchor","middle")
       .attr("xlink:href",function(d,i){return "#donutArc"+i;})
-      .text(function(d){return d.data.name;});
+      .text(function(d){return d.data.name + ": " + d.data.value;});
+
+    // =================
+  // Donut chart for marital status: 
+
+  var pieSvg2 = svgMain.append("g")
+      .attr("width", (pieWidth + pieMargin.left + pieMargin.right))
+     .attr("height", (pieHeight + pieMargin.top + pieMargin.bottom))
+     .attr("class", "piechart")
+     .attr("transform", "translate(" + (20*9.5) + "," + 40 + ")")
+     .append("g").attr("class", "wrapper")
+    .attr("transform", "translate(" + (pieWidth / 2 + pieMargin.left ) + "," + (pieHeight / 2 + pieMargin.bottom) + ")");
+
+  // Create a color scale
+  var pieColor2  = d3.scaleOrdinal(d3.schemeCategory20c);
+
+  var arc2 = d3.arc()
+      .innerRadius(pieWidth*0.75/2) 
+       .outerRadius(pieWidth*0.75/2 + 30);
+    
+   //Turn the pie chart 90 degrees counter clockwise, so it starts at the left  
+  var pie2 = d3.pie()
+    .startAngle(-90 * Math.PI/180) 
+    .endAngle(-90 * Math.PI/180 + 2*Math.PI)
+    .value(function(d) { return d.value; })
+    .padAngle(.01)
+    .sort(null);
+
+// Create Donut Chart
+
+  arcs2 = pieSvg2.selectAll(".donutArcSlices")
+        .data(pie2(country_data_marital))
+        .enter().append("path")
+        .attr("class", "donutArcSlices")
+        .attr("d", arc)
+        .style("fill", function(d,i) {
+          if(i === 7) return "#CCCCCC"; //Other
+          else return pieColor(i); 
+        })
+        .each(function(d, i) {
+
+          var firstArcSection = /(^.+?)L/; 
+            
+          //Grab everything up to the first Line statement
+          //The [1] gives back the expression between the () (thus not the L as well) which is exactly the arc statement
+          var newArc = firstArcSection.exec( d3.select(this).attr("d") )[1];
+          //Replace all the comma's so that IE can handle it -_-
+          //The g after the / is a modifier that "find all matches rather than stopping after the first match"
+          newArc = newArc.replace(/,/g , " ");
+                
+    //If the end angle lies beyond a quarter of a circle (90 degrees or pi/2) 
+        //flip the end and start position
+        if (d.endAngle > 90 * Math.PI/180) {
+          var startLoc  = /M(.*?)A/,    //Everything between the first capital M and first capital A
+            middleLoc   = /A(.*?)0 [01] 1/, //Everything between the first capital A and 0 0 1
+            endLoc    = /0 [01] 1 (.*?)$/;  //Everything between the first 0 0 1 and the end of the string (denoted by $)
+          //Flip the direction of the arc by switching the start en end point (and sweep flag)
+          //of those elements that are below the horizontal line
+          var newStart = endLoc.exec( newArc )[1];
+          var newEnd = startLoc.exec( newArc )[1];
+          var middleSec = middleLoc.exec( newArc )[1];
+          
+          //Build up the new arc notation, set the sweep-flag to 0
+          newArc = "M" + newStart + "A" + middleSec + "0 0 0 " + newEnd;
+        }//if
+
+          //Create a new invisible arc that the text can flow along
+          pieSvg2.append("path")
+            .attr("class", "hiddenDonutArcs")
+            .attr("id", "donutArc"+i)
+            .attr("d", newArc)
+            .style("fill", "none");
+        });
+        
+      //Append the label names on the outside
+    arctext2 = pieSvg2.selectAll(".donutText")
+        .data(pie2(country_data_marital))
+         .enter().append("text")
+      .attr("class", "donutText")
+      //Move the labels below the arcs for slices with an end angle > than 90 degrees
+      .attr("dy", function(d,i) {
+          return (d.endAngle > 180 * Math.PI/180 ? 18 : -11);
+      })
+      .append("textPath")
+      .attr("startOffset","50%")
+      .style("text-anchor","middle")
+      .attr("xlink:href",function(d,i){return "#donutArc"+i;})
+      .text(function(d){return d.data.name + ": " + d.data.value;});
+
+
+   // =================
+  // Donut chart for marital status: 
+
+  var pieSvg3 = svgMain.append("g")
+      .attr("width", (pieWidth + pieMargin.left + pieMargin.right))
+     .attr("height", (pieHeight + pieMargin.top + pieMargin.bottom))
+     .attr("class", "piechart")
+     .attr("transform", "translate(" + (20*18) + "," + 40 + ")")
+     .append("g").attr("class", "wrapper")
+    .attr("transform", "translate(" + (pieWidth / 2 + pieMargin.left ) + "," + (pieHeight / 2 + pieMargin.bottom) + ")");
+
+  // Create a color scale
+  var pieColor3  = d3.scaleOrdinal(d3.schemeCategory20c);
+
+  var arc3 = d3.arc()
+      .innerRadius(pieWidth*0.75/2) 
+       .outerRadius(pieWidth*0.75/2 + 30);
+    
+   //Turn the pie chart 90 degrees counter clockwise, so it starts at the left  
+  var pie3 = d3.pie()
+    .startAngle(-180 * Math.PI/180) 
+    .endAngle(-90 * Math.PI/180 + 2*Math.PI)
+    .value(function(d) { return d.value; })
+    .padAngle(.01)
+    .sort(null);
+
+// Create Donut Chart for migration background
+
+  arcs3 = pieSvg3.selectAll(".donutArcSlices")
+        .data(pie3(country_data_background))
+        .enter().append("path")
+        .attr("class", "donutArcSlices")
+        .attr("d", arc)
+        .style("fill", function(d,i) {
+          if(i === 7) return "#CCCCCC"; //Other
+          else return pieColor(i); 
+        })
+        .each(function(d, i) {
+
+          var firstArcSection = /(^.+?)L/; 
+            
+          //Grab everything up to the first Line statement
+          //The [1] gives back the expression between the () (thus not the L as well) which is exactly the arc statement
+          var newArc = firstArcSection.exec( d3.select(this).attr("d") )[1];
+          //Replace all the comma's so that IE can handle it -_-
+          //The g after the / is a modifier that "find all matches rather than stopping after the first match"
+          newArc = newArc.replace(/,/g , " ");
+                
+    //If the end angle lies beyond a quarter of a circle (90 degrees or pi/2) 
+        //flip the end and start position
+        if (d.endAngle > 90 * Math.PI/180) {
+          var startLoc  = /M(.*?)A/,    //Everything between the first capital M and first capital A
+            middleLoc   = /A(.*?)0 [01] 1/, //Everything between the first capital A and 0 0 1
+            endLoc    = /0 [01] 1 (.*?)$/;  //Everything between the first 0 0 1 and the end of the string (denoted by $)
+          //Flip the direction of the arc by switching the start en end point (and sweep flag)
+          //of those elements that are below the horizontal line
+          var newStart = endLoc.exec( newArc )[1];
+          var newEnd = startLoc.exec( newArc )[1];
+          var middleSec = middleLoc.exec( newArc )[1];
+          
+          //Build up the new arc notation, set the sweep-flag to 0
+          newArc = "M" + newStart + "A" + middleSec + "0 0 0 " + newEnd;
+        }//if
+
+          //Create a new invisible arc that the text can flow along
+          pieSvg3.append("path")
+            .attr("class", "hiddenDonutArcs")
+            .attr("id", "donutArc"+i)
+            .attr("d", newArc)
+            .style("fill", "none");
+        });
+        
+      //Append the label names on the outside
+    arctext3 = pieSvg3.selectAll(".donutText")
+        .data(pie3(country_data_background))
+         .enter().append("text")
+      .attr("class", "donutText")
+      //Move the labels below the arcs for slices with an end angle > than 90 degrees
+      .attr("dy", function(d,i) {
+            return (d.endAngle > 160 * Math.PI/180 ? 18 : -11);
+        
+      })
+      .append("textPath")
+      .attr("startOffset","50%")
+      .style("text-anchor","middle")
+      .attr("xlink:href",function(d,i){return "#donutArc"+i;})
+      .text(function(d){return d.data.name + ": " + d.data.value;});
+
 
   // =================
-  // Color scale map based on population of province
+  // Color scale legend  based on population of province
 
   //Append a defs (for definition) element to SVG
     var defs = svg.append("defs");
@@ -369,7 +565,7 @@ var barChart =	chart.selectAll(".bar")
     var legendsvg = svg.append("g")
       .attr("class", "legendWrapper")
       // Sets the actual position of the legend  container
-      .attr("transform", "translate(" + (width/2) + "," + (height/28) + ")");
+      .attr("transform", "translate(" + (width/2) + "," + 720 + ")");
     //Draw the Rectangle
     legendsvg.append("rect")
       .attr("class", "legendRect")
@@ -383,7 +579,7 @@ var barChart =	chart.selectAll(".bar")
     legendsvg.append("text")
       .attr("class", "legendTitle")
       .attr("x", 0)
-      .attr("y", -10)
+      .attr("y", -5)
       .style("text-anchor", "middle")
       .text("Population of the Netherlands");
 
@@ -479,8 +675,17 @@ function handleProviMouseOver(d) {
  	arcs = arcs.data(pie(province_data_man_woman));
   arcs.attr("d", arc)
   arctext.data(province_data_man_woman)
-  arctext.text(function(d){return d.value;});
+  arctext.text(function(d){return d.name + ": " + d.value;});
 
+arcs2 = arcs2.data(pie(province_data_marital));
+  arcs2.attr("d", arc)
+  arctext2.data(province_data_marital)
+  arctext2.text(function(d){return d.name + ": " + d.value;});
+
+  arcs3 = arcs3.data(pie(province_data_background));
+  arcs3.attr("d", arc)
+  arctext3.data(province_data_background)
+  arctext3.text(function(d){return d.name + ": " + d.value;});
   }
 
 // Changes the graphs and titles every time a user hovers out of a province with the corresponsing country data
@@ -510,7 +715,17 @@ function handleProviMouseOut(d) {
  	arcs = arcs.data(pie(country_data_man_woman));
     arcs.attr("d", arc)
     arctext.data(country_data_man_woman)
-    arctext.text(function(d){return d.value;});
+    arctext.text(function(d){return d.name + ": " + d.value;});
+
+       arcs2 = arcs2.data(pie(country_data_marital));
+    arcs2.attr("d", arc)
+    arctext2.data(country_data_marital)
+    arctext2.text(function(d){return d.name + ": " + d.value;});
+
+    arcs3 = arcs3.data(pie(country_data_background));
+    arcs3.attr("d", arc)
+    arctext3.data(country_data_background)
+    arctext3.text(function(d){return d.name + ": " + d.value;});
 
 }
   
@@ -581,7 +796,17 @@ function handleMuniMouseOver(d) {  // Add interactivity
     arcs = arcs.data(pie(municipality_data_man_woman));
     arcs.attr("d", arc)
     arctext.data(municipality_data_man_woman)
-    arctext.text(function(d){return d.value;});
+    arctext.text(function(d){return d.name + ": " + d.value;});
+
+    arcs2 = arcs2.data(pie(municipality_data_marital));
+    arcs2.attr("d", arc)
+    arctext2.data(municipality_data_marital)
+    arctext2.text(function(d){return d.name + ": " + d.value;});
+
+    arcs3 = arcs3.data(pie(municipality_data_background ));
+    arcs3.attr("d", arc)
+    arctext3.data(municipality_data_background )
+    arctext3.text(function(d){return d.name + ": " + d.value;});
 
       }
   
@@ -612,7 +837,17 @@ function handleMuniMouseOut(d) {
   arcs = arcs.data(pie(country_data_man_woman));
     arcs.attr("d", arc)
     arctext.data(country_data_man_woman)
-    arctext.text(function(d){return d.value;});
+    arctext.text(function(d){return d.name + ": " + d.value;});
+
+    arcs2 = arcs2.data(pie(country_data_marital));
+    arcs2.attr("d", arc)
+    arctext2.data(country_data_marital)
+    arctext2.text(function(d){return d.name + ": " + d.value;});
+
+    arcs3 = arcs3.data(pie(country_data_background));
+    arcs3.attr("d", arc)
+    arctext3.data(country_data_background)
+    arctext3.text(function(d){return d.name + ": " + d.value;});
   }
 
   // For viewing file objects, REMEMBER TO DELETE 
