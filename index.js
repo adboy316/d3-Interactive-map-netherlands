@@ -69,6 +69,10 @@ var pieMargin = {left: 10, top: 120, right: 50, bottom: 10},
     pieWidth = Math.min(screenWidth, 150) - (pieMargin.left) - pieMargin.right,
     pieHeight = Math.min(screenWidth, 150) - (pieMargin.left) - pieMargin.right,
     pieRadius = Math.min(pieWidth, pieHeight) / 2;
+    yPositionPie = 90;
+    xPositionPie = 20;
+
+    
 
 // =================
 // Set up the Map:
@@ -207,7 +211,7 @@ d3.json("nl.json", function(error, nl) {
       .attr("width", barWidth + barMargin.left + barMargin.right)
       .attr("height", barHeight + barMargin.top + barMargin.bottom)
       .attr("id", "chart")
-       .attr("transform", "translate(" + (50) + "," + 200 + ")")
+       .attr("transform", "translate(" + (50) + "," + 230 + ")")
       .append("g")
   	   .attr("transform", "translate(" + barMargin.left + "," + barMargin.top + ")");
 
@@ -258,7 +262,7 @@ var barChart =	chart.selectAll(".bar")
       .attr("width", (pieWidth + pieMargin.left + pieMargin.right))
   	 .attr("height", (pieHeight + pieMargin.top + pieMargin.bottom))
      .attr("class", "piechart")
-     .attr("transform", "translate(" + (20) + "," + 40 + ")")
+     .attr("transform", "translate(" + xPositionPie + "," + yPositionPie + ")")
      .append("g").attr("class", "wrapper")
   	.attr("transform", "translate(" + (pieWidth / 2 + pieMargin.left ) + "," + (pieHeight / 2 + pieMargin.bottom) + ")");
 
@@ -353,7 +357,7 @@ var barChart =	chart.selectAll(".bar")
       .attr("width", (pieWidth + pieMargin.left + pieMargin.right))
      .attr("height", (pieHeight + pieMargin.top + pieMargin.bottom))
      .attr("class", "piechart")
-     .attr("transform", "translate(" + (20*9.5) + "," + 40 + ")")
+     .attr("transform", "translate(" + (xPositionPie*9.5) + "," + yPositionPie + ")")
      .append("g").attr("class", "wrapper")
     .attr("transform", "translate(" + (pieWidth / 2 + pieMargin.left ) + "," + (pieHeight / 2 + pieMargin.bottom) + ")");
 
@@ -435,13 +439,13 @@ var barChart =	chart.selectAll(".bar")
 
 
    // =================
-  // Donut chart for marital status: 
+  // Donut chart for background: 
 
   var pieSvg3 = svgMain.append("g")
       .attr("width", (pieWidth + pieMargin.left + pieMargin.right))
      .attr("height", (pieHeight + pieMargin.top + pieMargin.bottom))
      .attr("class", "piechart")
-     .attr("transform", "translate(" + (20*18) + "," + 40 + ")")
+     .attr("transform", "translate(" + (xPositionPie*18) + "," + yPositionPie + ")")
      .append("g").attr("class", "wrapper")
     .attr("transform", "translate(" + (pieWidth / 2 + pieMargin.left ) + "," + (pieHeight / 2 + pieMargin.bottom) + ")");
 
@@ -607,14 +611,26 @@ var barChart =	chart.selectAll(".bar")
   // =================
   // Name of place and total population
 
-  
-  var string = "<p>" + "Netherlands" + "</p>";
-  string += "<p>Total Population</strong>: " + "17,181,084" + "</p>";
+     var textboxPositionX = 20
+        textboxPositionY = 10
 
-  d3.select("#textbox")
-    .html("")
-    .append("text")
-    .html(string);
+   var placeName = svgMain.append("text")
+        .attr("class", "place-name")
+        .attr("x", textboxPositionX)
+        .attr("y", textboxPositionY)
+        .attr("dy", ".35em")
+        .text("Area: The Netherlands");
+
+   var totalPopulation = svgMain.append("text")
+        .attr("class", "population-text")
+        .attr("x", textboxPositionX )
+        .attr("y", textboxPositionY + 30)
+        .attr("dy", ".35em")
+        .text("Total Population: 17181084");
+      
+  
+
+   
 // =================
 // Handlers:
 // =================
@@ -632,16 +648,10 @@ function handleProviMouseOver(d) {
     tooltip.html(d.properties.province_name) 
     .style("left", (d3.event.pageX) + "px")   
     .style("top", (d3.event.pageY - 28) + "px");  
-    
-  // Create a textbox with information about the province   
 
-  var string = "<p>" + d.properties.total_population + "</p>"; 
-  string += "<p>Total Population</strong>: " + d.properties.total_population + "</p>";
-
-  d3.select("#textbox")
-    .html("")
-    .append("text")
-    .html(string);
+  // Edit textbox with information about the province   
+  placeName.html("Area: " + d.properties.province_name) 
+  totalPopulation.html("Total Population: " + d.properties.total_population) 
 
   // Prepare province data for bar chart
  var province_data_man_woman = [
@@ -710,6 +720,10 @@ function handleProviMouseOut(d) {
     .duration(500)    
     .style("opacity", 0); 
 
+  // Update textbox on mouseout
+   placeName.text("Area: The Netherlands");
+   totalPopulation.text("Total Population: 17,181,084");
+
   //Update barchart with country data on mouseout
   x.domain(country_data_age.map(function(d) { return d.name; }));
   y.domain([0, d3.max(country_data_age , function(d) { return d.value; })]);
@@ -755,15 +769,9 @@ function handleMuniMouseOver(d) {  // Add interactivity
       .style("left", (d3.event.pageX) + "px")   
       .style("top", (d3.event.pageY - 28) + "px");  
       
-    // Create textbox     
-    var string = "<p>Total Population</strong>: " + d.properties.total_population + "</p>";
-    string += "<p><strong>% population</strong>: " + d.properties.total_population + "%</p>";
-
-    d3.select("#textbox")
-      .html("")
-      .append("text")
-      .html(string);
-
+  // Edit textbox with information about the municipality
+  placeName.html("Area: " + d.properties.municipality_name) 
+  totalPopulation.html("Total Population: " + d.properties.total_population) 
   // Prepare municipality data for bar chart
  var municipality_data_man_woman = [
                       {name:"Man", value:d.properties["man"]},
@@ -831,6 +839,10 @@ function handleMuniMouseOut(d) {
     tooltip.transition()    
       .duration(500)    
       .style("opacity", 0); 
+
+  // Update textbox on mouseout
+   placeName.text("Area: The Netherlands");
+   totalPopulation.text("Total Population: 17,181,084");
 
       //Update barchart with country data on mouseout
   x.domain(country_data_age.map(function(d) { return d.name; }));
