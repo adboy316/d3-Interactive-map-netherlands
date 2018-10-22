@@ -31,6 +31,16 @@ h2 {
     fill: #4F4F4F;
     font-weight: 300;
 }
+
+footer{
+	font-family: "Helvetica", "Arial", sans-serif;
+	text-anchor: middle;
+    font-size: .6rem;
+    fill: #4F4F4F;
+    font-weight: 300;
+}
+
+
 /* Prvinces label */
 .subunit-label {
   fill: #171302;
@@ -125,20 +135,29 @@ text {
           pointer-events: none;  
 }
 
-#textbox {
-  position: absolute;
-  top: 100px;
-  left: 50px;
-  width: 275px;
-  height: 100px;
-}
+
+/* Textbox displaying name of place and total population */
 
 
-#textbox text p {
-  font-family: Arial, Helvetica;
-  font-size: .8em;
-  margin: 0;
-}
+
+.place-name {
+	      font-size: 1.6rem;
+	      fill: #4F4F4F;
+	      font-weight: 300;
+	      text-anchor: left;
+	    }
+.population-text {
+
+	      font-size: 1rem;
+	      fill: #4F4F4F;
+	      font-weight: 300;
+	      text-anchor: left;
+	      position: relative;
+	      top: -10px;
+	    }
+
+
+
 
 
 
