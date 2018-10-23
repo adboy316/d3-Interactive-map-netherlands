@@ -6,6 +6,8 @@ Province population Legend - Credit to Visual Cinamon - https://www.visualcinnam
 Donut chart - https://www.visualcinnamon.com/2015/09/placing-text-on-arcs.html
 Municipalities Tooltip - Credit to Mike Bostock - https://bl.ocks.org/mbostock/1087001
 Bar Graph - Credit to Mike Bostock - https://bost.ocks.org/mike/bar/
+Population data - https://opendata.cbs.nl/statline/portal.html?_la=nl&_catalog=CBS
+Map Data - http://www.imergis.nl/asp/47.asp
 */
 
 // =================
@@ -72,7 +74,6 @@ var pieMargin = {left: 10, top: 120, right: 50, bottom: 10},
     yPositionPie = 90;
     xPositionPie = 20;
 
-    
 
 // =================
 // Set up the Map:
@@ -249,7 +250,6 @@ var barChart =	chart.selectAll(".bar")
       .attr("text-anchor", "middle")  
       .attr("transform", "translate("+ (barMargin.left -100) +","+(barHeight/2)+")rotate(-90)")  
       .text("Population of Age Group");
-
        chart.append("text")
       .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
       .attr("transform", "translate("+ (barWidth/2) +","+(barHeight-(barMargin.bottom - 120))+")")  // centre below axis
@@ -583,7 +583,7 @@ var barChart =	chart.selectAll(".bar")
       .attr("x", 0)
       .attr("y", -5)
       .style("text-anchor", "middle")
-      .text("Population of the Netherlands");
+      .text("Population of Provinces");
 
   //Set scale for x-axis
   var xScale = d3.scaleLinear()
@@ -722,7 +722,7 @@ function handleProviMouseOut(d) {
 
   // Update textbox on mouseout
    placeName.text("Area: The Netherlands");
-   totalPopulation.text("Total Population: 17,181,084");
+   totalPopulation.text("Total Population: 17181084");
 
   //Update barchart with country data on mouseout
   x.domain(country_data_age.map(function(d) { return d.name; }));
@@ -842,7 +842,7 @@ function handleMuniMouseOut(d) {
 
   // Update textbox on mouseout
    placeName.text("Area: The Netherlands");
-   totalPopulation.text("Total Population: 17,181,084");
+   totalPopulation.text("Total Population: 17181084");
 
       //Update barchart with country data on mouseout
   x.domain(country_data_age.map(function(d) { return d.name; }));
